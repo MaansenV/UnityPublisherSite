@@ -19,6 +19,11 @@ document.documentElement.classList.add('js');
   // wireframe boots in, then hero reveals. If reduced-motion or JS
   // error, CSS handles fallback (overlay hidden, content visible).
   // ================================================================
+  // BOOT SEQUENCE — the focal moment. Console types init lines, bar
+  // fills in parallel, hero reveals when BOTH finish. Click-to-skip.
+  // Two-flag pattern: typingDone + barDone, dismiss fires when both true.
+  // CSS hard cap: 2.5s on .booting, 3s no-JS fallback.
+  // ================================================================
 
   var bootOverlay = document.getElementById('boot-overlay');
   var bootText = document.getElementById('boot-text');
@@ -27,11 +32,35 @@ document.documentElement.classList.add('js');
 
   var bootLines = [
     '> initializing publisher system...',
-    '> loading engine runtime...',
-    '> registering asset store publisher...',
-    '> calibration complete',
     '> system online'
   ];
+
+  var typingDone = false;
+  var barDone = false;
+  var dismissed = false;
+
+  function tryDismiss() {
+    if (typingDone && barDone && !dismissed) {
+      dismissed = true;
+      bootOverlay.classList.add('boot-done');
+      setTimeout(function () {
+        bootOverlay.style.display = 'none';
+      }, 400);
+      if (heroEl) heroEl.classList.add('hero-ready');
+    }
+  }
+
+  function dismissBoot() {
+    dismissed = true;
+    bootOverlay.classList.add('boot-done');
+    setTimeout(function () {
+      bootOverlay.style.display = 'none';
+    }, 400);
+    if (heroEl) heroEl.classList.add('hero-ready');
+  }
+
+  // Click-to-skip on overlay
+  bootOverlay.addEventListener('click', dismissBoot);
 
   function startBoot() {
     if (reducedMotion) {
@@ -46,7 +75,8 @@ document.documentElement.classList.add('js');
 
     function typeNext() {
       if (lineIdx >= bootLines.length) {
-        setTimeout(dismissBoot, 400);
+        typingDone = true;
+        tryDismiss();
         return;
       }
       var line = bootLines[lineIdx];
@@ -54,31 +84,23 @@ document.documentElement.classList.add('js');
         currentText += line[charIdx];
         bootText.textContent = currentText;
         charIdx++;
-        setTimeout(typeNext, 18 + Math.random() * 30);
+        setTimeout(typeNext, 8 + Math.random() * 14);
       } else {
         currentText += '\n';
         bootText.textContent = currentText;
         charIdx = 0;
         lineIdx++;
-        setTimeout(typeNext, 150 + Math.random() * 200);
+        setTimeout(typeNext, 60);
       }
     }
-
-    bootBarFill.style.width = '0%';
+    // CSS animation drives the bar fill (0.9s). JS timer gates barDone
+    // for the two-flag dismiss pattern — no inline transition needed.
     setTimeout(function () {
-      bootBarFill.style.transition = 'width 2.2s ease-out';
-      bootBarFill.style.width = '100%';
-    }, 50);
+      barDone = true;
+      tryDismiss();
+    }, 950);
 
-    setTimeout(typeNext, 200);
-  }
-
-  function dismissBoot() {
-    bootOverlay.classList.add('boot-done');
-    setTimeout(function () {
-      bootOverlay.style.display = 'none';
-    }, 500);
-    if (heroEl) heroEl.classList.add('hero-ready');
+    setTimeout(typeNext, 100);
   }
 
   // ================================================================

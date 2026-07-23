@@ -85,7 +85,7 @@ body {
 }
 
 .boot-overlay.booting {
-  animation: boot-fade-out 0.5s var(--ease-out) 6s forwards;
+  animation: boot-fade-out 0.5s var(--ease-out) 2.5s forwards;
 }
 
 .boot-overlay.boot-done {
@@ -123,10 +123,11 @@ body {
   height: 100%;
   background: var(--primary);
   border-radius: 2px;
+  cursor: pointer;
 }
 
 .booting .boot-bar-fill {
-  animation: boot-progress 2.2s ease-out forwards;
+  animation: boot-progress 0.9s ease-out forwards;
 }
 
 @keyframes boot-progress {
