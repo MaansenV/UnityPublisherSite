@@ -6,13 +6,25 @@
 <title>Unity Publisher — Asset Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Wireframe engine canvas — the signature element -->
+<!-- Custom cursor (pointer:fine only, via CSS) -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- Engine canvas — single canvas layer -->
 <canvas id="engine-canvas"></canvas>
+
+<!-- Boot overlay — fails open: pure CSS auto-dismiss if JS never runs -->
+<div class="boot-overlay" id="boot-overlay">
+  <div class="boot-content">
+    <pre class="boot-text" id="boot-text"></pre>
+    <div class="boot-bar"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+  </div>
+</div>
 
 <!-- Navigation -->
 <nav class="nav">
@@ -35,7 +47,10 @@
 <header id="top" class="hero">
   <div class="hero-left">
     <p class="eyebrow">Unity Asset Store Publisher</p>
-    <h1 class="hero-title">Building tools for<br><span class="accent">game developers</span></h1>
+    <h1 class="hero-title">
+      <span class="hero-line">Building tools for</span>
+      <span class="hero-line accent">game developers</span>
+    </h1>
     <p class="hero-desc">Unity Asset Store publisher page. Tools, systems, and content for game developers — store listings will appear here as they go live.</p>
     <div class="hero-actions">
       <a href="#assets" class="btn-primary">View Assets</a>
@@ -43,8 +58,8 @@
     </div>
   </div>
   <div class="hero-right">
-    <!-- Wireframe canvas sits behind, this is the glow anchor -->
     <div class="engine-glow"></div>
+    <div class="engine-ring"></div>
   </div>
 </header>
 
@@ -65,35 +80,42 @@
   </div>
 </section>
 
-<!-- About -->
+<!-- About — asymmetric console dossier -->
 <section id="about" class="section">
   <p class="eyebrow center">Profile</p>
   <h2 class="section-heading">About</h2>
-  <p class="section-lede">Unity Asset Store publisher developing tools and content for game developers. This page serves as the official publisher presence on the Asset Store.</p>
-  <div class="features">
-    <article class="feature">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-        <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" opacity="0.5"/>
-      </svg>
-      <h3>Asset Store</h3>
-      <p>The official marketplace for Unity assets, tools, and content.</p>
-    </article>
-    <article class="feature">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M20 7h-9M14 17H5M17 17a3 3 0 1 0 0-.01M7 7a3 3 0 1 0 0-.01"/>
-      </svg>
-      <h3>Publisher Page</h3>
-      <p>The required presence page for verified Asset Store publishers.</p>
-    </article>
-    <article class="feature">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M4 4h16v16H4z" opacity="0.3"/>
-        <path d="M4 9h16M9 4v16"/>
-      </svg>
-      <h3>Catalog</h3>
-      <p>Published assets will be listed here with previews and store links.</p>
-    </article>
+  <div class="dossier">
+    <!-- Console status panel -->
+    <div class="console-panel">
+      <div class="console-header">
+        <span class="console-dot"></span>
+        <span class="console-title">PUBLISHER.SYS</span>
+      </div>
+      <div class="console-rows">
+        <div class="console-row">
+          <span class="console-key">PUBLISHER</span>
+          <!-- EDITABLE: replace with your real publisher display name once set in the Asset Store -->
+          <span class="console-val">Registered Asset Store publisher</span>
+        </div>
+        <div class="console-row">
+          <span class="console-key">STORE</span>
+          <span class="console-val">assetstore.unity.com</span>
+        </div>
+        <div class="console-row">
+          <span class="console-key">STATUS</span>
+          <span class="console-val"><span class="status-pulse"></span>Preparing first release</span>
+        </div>
+        <div class="console-row">
+          <span class="console-key">CONTACT</span>
+          <span class="console-val">dinlinwin@gmail.com</span>
+        </div>
+      </div>
+    </div>
+    <!-- Prose column -->
+    <div class="dossier-prose">
+      <p>This page serves as the official publisher presence on the Unity Asset Store. It is the required public page for publishers listing assets on the store.</p>
+      <p>Tools, systems, and content for game developers are in preparation. Store listings, previews, and direct links will appear in the catalog section above as they go live.</p>
+    </div>
   </div>
 </section>
 

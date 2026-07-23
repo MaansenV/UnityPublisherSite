@@ -3,8 +3,8 @@
 
 :root {
   --bg: #0A0E1A;
-  --bg-elevated: #111827;
-  --bg-card: rgba(17, 24, 39, 0.6);
+  --bg-elevated: #0F1525;
+  --bg-card: rgba(15, 21, 37, 0.7);
   --border: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.18);
   --text: #F1F5F9;
@@ -12,10 +12,12 @@
   --text-muted: #475569;
   --primary: #10B981;
   --primary-glow: rgba(16, 185, 129, 0.15);
+  --primary-soft: rgba(16, 185, 129, 0.08);
   --accent: #F59E0B;
   --accent-glow: rgba(245, 158, 11, 0.12);
   --radius: 12px;
   --radius-sm: 8px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html { scroll-behavior: smooth; }
@@ -29,6 +31,38 @@ body {
   min-height: 100vh;
 }
 
+/* === Custom Cursor — pointer:fine only, never intercepts clicks === */
+@media (pointer: fine) {
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    will-change: transform;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--primary);
+    transition: opacity 0.2s;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--primary);
+    opacity: 0.4;
+    transition: width 0.2s, height 0.2s, opacity 0.2s, border-color 0.2s;
+  }
+  .cursor-ring.hover {
+    width: 48px; height: 48px;
+    opacity: 0.6;
+    border-color: var(--accent);
+  }
+}
+
+@media (pointer: coarse) {
+  .cursor-dot, .cursor-ring { display: none !important; }
+}
+
 /* === Engine Canvas === */
 #engine-canvas {
   position: fixed;
@@ -38,9 +72,80 @@ body {
   pointer-events: none;
 }
 
+/* === Boot Overlay — FAILS OPEN === */
+/* No-JS fallback: CSS animation auto-dismisses overlay after 3s.
+   JS-running: .booting takes over but still has a 6s hard cap.
+   Reduced-motion: hidden entirely via the reduced-motion block. */
+.boot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: boot-fade-out 0.5s var(--ease-out) 3s forwards;
+}
+
+.boot-overlay.booting {
+  animation: boot-fade-out 0.5s var(--ease-out) 6s forwards;
+}
+
+.boot-overlay.boot-done {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.boot-content {
+  text-align: center;
+  width: min(440px, 80vw);
+}
+
+.boot-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--primary);
+  text-align: left;
+  line-height: 1.8;
+  min-height: 120px;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+}
+
+.boot-bar {
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.boot-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.booting .boot-bar-fill {
+  animation: boot-progress 2.2s ease-out forwards;
+}
+
+@keyframes boot-progress {
+  0% { width: 0%; }
+  40% { width: 35%; }
+  70% { width: 75%; }
+  100% { width: 100%; }
+}
+
+@keyframes boot-fade-out {
+  to { opacity: 0; pointer-events: none; }
+}
+
 /* === Typography === */
 .eyebrow {
-  font-family: 'Orbitron', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 3px;
@@ -126,6 +231,7 @@ body {
   text-decoration: none;
   font-weight: 600;
   font-size: 0.85rem;
+  cursor: pointer;
   transition: box-shadow 0.2s;
 }
 
@@ -157,10 +263,26 @@ body {
   color: var(--text);
 }
 
+/* display:block always — spans must stack regardless of JS */
+.hero-line {
+  display: block;
+}
+
+/* Only hide for JS entrance animation; no-JS shows everything */
+.js .hero-line {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 .hero-desc {
   color: var(--text-secondary);
   font-size: 1.1rem;
   margin-bottom: 36px;
+}
+
+.js .hero-desc {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .hero-actions {
@@ -168,6 +290,23 @@ body {
   gap: 16px;
   flex-wrap: wrap;
 }
+
+.js .hero-actions {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hero-ready .hero-line,
+.hero-ready .hero-desc,
+.hero-ready .hero-actions {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+
+.hero-ready .hero-line:nth-child(2) { transition-delay: 0.1s; }
+.hero-ready .hero-desc { transition-delay: 0.3s; }
+.hero-ready .hero-actions { transition-delay: 0.5s; }
 
 .btn-primary {
   display: inline-flex;
@@ -208,11 +347,12 @@ body {
 
 .btn-large { padding: 18px 40px; font-size: 1.05rem; }
 
-/* Hero right — engine glow anchor */
+/* Hero right — engine glow + ring */
 .hero-right {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .engine-glow {
@@ -223,9 +363,32 @@ body {
   animation: pulse-glow 4s ease-in-out infinite;
 }
 
+.engine-ring {
+  position: absolute;
+  width: 280px; height: 280px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  animation: ring-rotate 20s linear infinite;
+}
+
+.engine-ring::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--primary);
+}
+
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes ring-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* === Sections === */
@@ -253,7 +416,7 @@ body {
   width: 56px; height: 56px;
   margin: 0 auto 24px;
   border-radius: 50%;
-  background: var(--primary-glow);
+  background: var(--primary-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -280,46 +443,114 @@ body {
   margin: 0 auto;
 }
 
-/* === Features === */
-.features {
+/* === Dossier — asymmetric console + prose === */
+.dossier {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: start;
 }
 
-.feature {
+.console-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 28px;
-  transition: border-color 0.2s, transform 0.2s;
+  overflow: hidden;
 }
 
-.feature:hover {
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
+.console-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
 }
 
-.feature svg {
-  color: var(--accent);
+.console-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.console-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.console-rows {
+  padding: 8px 0;
+}
+
+.console-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.console-row:last-child { border-bottom: none; }
+
+.console-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.console-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+.dossier-prose {
+  padding: 8px 0;
+}
+
+.dossier-prose p {
+  color: var(--text-secondary);
+  font-size: 1rem;
   margin-bottom: 20px;
 }
 
-.feature h3 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.feature p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
+.dossier-prose p:last-child { margin-bottom: 0; }
 
 /* === Contact === */
 .contact-card {
   text-align: center;
+}
+
+.contact-note {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 20px;
+  letter-spacing: 0.5px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* === Footer === */
@@ -333,16 +564,10 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* === Reveal === */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+/* === Focus states === */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* === Responsive === */
@@ -358,12 +583,7 @@ body {
   .hero-actions { justify-content: center; }
   .hero-right { display: none; }
   .section { padding: 64px 20px; }
-}
-
-/* === Focus states === */
-a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  .dossier { grid-template-columns: 1fr; }
 }
 
 /* === Reduced Motion === */
@@ -374,7 +594,12 @@ a:focus-visible, button:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .reveal { opacity: 1; transform: none; }
-  .engine-glow { animation: none; opacity: 0.4; }
-  .cs-indicator svg { animation: none; }
+  .boot-overlay { display: none !important; }
+  .hero-line, .hero-desc, .hero-actions {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .engine-glow, .engine-ring, .cs-indicator svg, .console-dot, .status-pulse {
+    animation: none !important;
+  }
 }
