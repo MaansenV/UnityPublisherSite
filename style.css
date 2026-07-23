@@ -534,63 +534,58 @@ body {
 
 .dossier-prose p:last-child { margin-bottom: 0; }
 
-/* === Contact — channel panel === */
+/* === Contact — channel panel (console-row vocabulary) === */
 .channel-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
-.channel-body {
-  padding: 40px 32px;
-  text-align: center;
-}
-
-.channel-prompt {
-  color: var(--text-secondary);
-  font-size: 1.05rem;
-  margin-bottom: 32px;
-}
-
-.channel-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--primary);
-  text-decoration: none;
-  padding: 16px 28px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.channel-link:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 24px var(--primary-glow);
-}
-
-.channel-prefix {
+/* Comment row — muted mono, no value */
+.console-comment .console-key {
+  text-transform: none;
   color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Command row — the mailto as interactive terminal line */
+.channel-cmd {
+  text-decoration: none;
+  color: var(--primary);
+  gap: 12px;
+  transition: background 0.2s;
+}
+
+.channel-cmd .console-key {
+  color: var(--text-muted);
+  font-size: 0.85rem;
   transition: color 0.2s;
 }
 
-.channel-link:hover .channel-prefix {
+.channel-cmd:hover {
+  background: var(--primary-soft);
+}
+
+.channel-cmd:hover .console-key {
   color: var(--accent);
 }
 
 .channel-email {
   font-family: 'JetBrains Mono', monospace;
+  color: var(--primary);
 }
 
+/* Blinking caret */
 .channel-caret {
   width: 8px; height: 16px;
   background: var(--primary);
   display: inline-block;
   animation: caret-blink 1.1s step-end infinite;
+  margin-left: auto;
 }
 
 @keyframes caret-blink {
@@ -598,7 +593,7 @@ body {
   51%, 100% { opacity: 0; }
 }
 
-.channel-link:hover .channel-caret {
+.channel-cmd:hover .channel-caret {
   animation: caret-blink 0.4s step-end infinite;
   box-shadow: 0 0 8px var(--primary);
 }
@@ -609,6 +604,7 @@ body {
   margin-top: 24px;
   letter-spacing: 0.5px;
   font-family: 'JetBrains Mono', monospace;
+  text-align: center;
 }
 
 /* === Footer === */
