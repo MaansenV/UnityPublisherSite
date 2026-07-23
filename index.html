@@ -63,20 +63,34 @@
   </div>
 </header>
 
-<!-- Assets -->
+<!-- Assets — queue console -->
 <section id="assets" class="section">
   <p class="eyebrow center">Catalog</p>
   <h2 class="section-heading">Assets</h2>
   <p class="section-lede">Unity Asset Store listings will appear here once published.</p>
-  <div class="coming-soon" data-tilt>
-    <div class="cs-indicator">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 6v6l4 2"/>
-      </svg>
+  <div class="console-panel queue-panel" data-tilt>
+    <div class="console-header">
+      <span class="console-dot"></span>
+      <span class="console-title">CATALOG.QUEUE</span>
     </div>
-    <h3>Assets Coming Soon</h3>
-    <p>Store listings are in preparation. Published assets, previews, and links to the Unity Asset Store will appear in this section.</p>
+    <div class="console-rows">
+      <div class="console-row console-comment">
+        <span class="console-key">// queue empty — first submission pending</span>
+      </div>
+      <div class="console-row">
+        <span class="console-key">STATUS</span>
+        <span class="console-val"><span class="status-pulse"></span>Initializing</span>
+      </div>
+      <div class="console-row">
+        <span class="console-key">LISTED</span>
+        <span class="console-val">0 assets</span>
+      </div>
+      <div class="console-row">
+        <span class="console-key">NEXT</span>
+        <span class="console-val">TBD</span>
+      </div>
+    </div>
+    <div class="scanline"></div>
   </div>
 </section>
 
@@ -121,7 +135,7 @@
 
 <!-- Contact — channel panel closes the console motif -->
 <section id="contact" class="section">
-  <div class="channel-panel" data-tilt>
+  <div class="console-panel channel-panel" data-tilt>
     <div class="console-header">
       <span class="console-dot"></span>
       <span class="console-title">CONTACT.CHANNEL</span>

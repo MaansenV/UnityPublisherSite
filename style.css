@@ -393,50 +393,7 @@ body {
   margin: 0 auto;
 }
 
-/* === Coming Soon === */
-.coming-soon {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 56px 40px;
-  text-align: center;
-  transition: border-color 0.2s;
-}
-
-.coming-soon:hover { border-color: var(--border-hover); }
-
-.cs-indicator {
-  width: 56px; height: 56px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  background: var(--primary-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-}
-
-.cs-indicator svg { animation: rotate-slow 12s linear infinite; }
-
-@keyframes rotate-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.coming-soon h3 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.coming-soon p {
-  color: var(--text-secondary);
-  max-width: 420px;
-  margin: 0 auto;
-}
-
-/* === Console shared (dossier + channel) === */
+/* === Console shared (dossier + queue + channel) === */
 .console-header {
   display: flex;
   align-items: center;
@@ -465,14 +422,6 @@ body {
   font-weight: 600;
   letter-spacing: 1px;
   color: var(--text-secondary);
-}
-
-/* === Dossier — asymmetric console + prose === */
-.dossier {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 32px;
-  align-items: start;
 }
 
 .console-panel {
@@ -522,6 +471,53 @@ body {
   animation: dot-pulse 2s ease-in-out infinite;
 }
 
+/* Comment row — muted, no value column */
+.console-comment .console-key {
+  text-transform: none;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* === Queue panel (Assets) === */
+.queue-panel {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Scanline — paint-only sweep, clipped by panel overflow:hidden */
+.scanline {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(16, 185, 129, 0.03) 45%,
+    rgba(16, 185, 129, 0.06) 50%,
+    rgba(16, 185, 129, 0.03) 55%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  background-position: 0 -100%;
+  animation: scanline-sweep 5s linear infinite;
+}
+
+@keyframes scanline-sweep {
+  0% { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+
+/* === Dossier — asymmetric console + prose === */
+.dossier {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
 .dossier-prose {
   padding: 8px 0;
 }
@@ -534,22 +530,10 @@ body {
 
 .dossier-prose p:last-child { margin-bottom: 0; }
 
-/* === Contact — channel panel (console-row vocabulary) === */
+/* === Contact — channel panel === */
 .channel-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
   max-width: 640px;
   margin: 0 auto;
-}
-
-/* Comment row — muted mono, no value */
-.console-comment .console-key {
-  text-transform: none;
-  color: var(--text-muted);
-  font-weight: 400;
-  letter-spacing: 0;
 }
 
 /* Command row — the mailto as interactive terminal line */
@@ -654,7 +638,7 @@ a:focus-visible, button:focus-visible {
     transform: none !important;
   }
   .engine-glow, .engine-ring, .cs-indicator svg,
-  .console-dot, .status-pulse, .channel-caret {
+  .console-dot, .status-pulse, .channel-caret, .scanline {
     animation: none !important;
   }
 }
