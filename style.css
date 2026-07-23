@@ -637,7 +637,7 @@ a:focus-visible, button:focus-visible {
     opacity: 1 !important;
     transform: none !important;
   }
-  .engine-glow, .engine-ring, .cs-indicator svg,
+  .engine-glow, .engine-ring,
   .console-dot, .status-pulse, .channel-caret, .scanline {
     animation: none !important;
   }
