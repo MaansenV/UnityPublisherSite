@@ -1,126 +1,112 @@
-// === Particle Network Background ===
-// Futuristic connected-particle field on canvas. Disabled entirely under
-// prefers-reduced-motion to keep the page usable for motion-sensitive users.
+// === Wireframe Engine Canvas ===
+// Rotating icosahedron wireframe — the signature element evoking Unity's 3D engine.
+// Disabled entirely under prefers-reduced-motion.
 
 (function () {
   'use strict';
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canvas = document.getElementById('engine-canvas');
+  var ctx = canvas.getContext('2d');
+  var w, h, cx, cy, rafId;
 
-  let width, height, particles, rafId;
-  const PARTICLE_COUNT = 70;
-  const MAX_DIST = 140;
-  const MOUSE_DIST = 180;
+  // Icosahedron vertices (normalized)
+  var phi = (1 + Math.sqrt(5)) / 2;
+  var verts = [
+    [-1,  phi, 0], [ 1,  phi, 0], [-1, -phi, 0], [ 1, -phi, 0],
+    [0, -1,  phi], [0,  1,  phi], [0, -1, -phi], [0,  1, -phi],
+    [ phi, 0, -1], [ phi, 0,  1], [-phi, 0, -1], [-phi, 0,  1]
+  ];
+  // Normalize
+  for (var i = 0; i < verts.length; i++) {
+    var len = Math.sqrt(verts[i][0]*verts[i][0] + verts[i][1]*verts[i][1] + verts[i][2]*verts[i][2]);
+    verts[i][0] /= len; verts[i][1] /= len; verts[i][2] /= len;
+  }
+  // Edge list (30 edges)
+  var edges = [
+    [0,1],[0,5],[0,7],[0,10],[0,11], [1,5],[1,7],[1,8],[1,9],
+    [2,3],[2,4],[2,6],[2,10],[2,11], [3,4],[3,6],[3,8],[3,9],
+    [4,5],[4,9],[4,11], [5,9],[5,11], [6,7],[6,8],[6,10],
+    [7,8],[7,10], [8,9], [9,11], [10,11]
+  ];
 
-  const mouse = { x: null, y: null };
+  var angle = 0;
+  var scale = 180;
 
   function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cx = w / 2;
+    cy = h / 2;
+    scale = Math.min(w, h) * 0.22;
   }
 
-  function createParticles() {
-    particles = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        r: Math.random() * 1.5 + 0.5
-      });
-    }
+  function project(v, rotY, rotX) {
+    // Rotate Y
+    var x1 = v[0] * Math.cos(rotY) - v[2] * Math.sin(rotY);
+    var z1 = v[0] * Math.sin(rotY) + v[2] * Math.cos(rotY);
+    var y1 = v[1];
+    // Rotate X
+    var y2 = y1 * Math.cos(rotX) - z1 * Math.sin(rotX);
+    var z2 = y1 * Math.sin(rotX) + z1 * Math.cos(rotX);
+    var x2 = x1;
+    // Perspective
+    var persp = 3 / (3 - z2 * 0.4);
+    return [cx + x2 * scale * persp, cy + y2 * scale * persp, z2];
   }
 
   function draw() {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, w, h);
 
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
+    // Position the wireframe in the right half of the screen (behind hero)
+    cx = w > 768 ? w * 0.7 : w / 2;
+    cy = h * 0.45;
 
-      // Move
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Bounce edges
-      if (p.x < 0 || p.x > width) p.vx *= -1;
-      if (p.y < 0 || p.y > height) p.vy *= -1;
-
-      // Draw particle
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0, 229, 255, 0.5)';
-      ctx.fill();
-
-      // Connect to nearby particles
-      for (let j = i + 1; j < particles.length; j++) {
-        const q = particles[j];
-        const dx = p.x - q.x;
-        const dy = p.y - q.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < MAX_DIST) {
-          const alpha = (1 - dist / MAX_DIST) * 0.25;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(q.x, q.y);
-          ctx.strokeStyle = 'rgba(120, 160, 255, ' + alpha + ')';
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-
-      // Connect to mouse
-      if (mouse.x !== null) {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MOUSE_DIST) {
-          const alpha = (1 - dist / MOUSE_DIST) * 0.5;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = 'rgba(0, 229, 255, ' + alpha + ')';
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-        }
-      }
+    var projected = [];
+    for (var i = 0; i < verts.length; i++) {
+      projected.push(project(verts[i], angle, angle * 0.6));
     }
 
+    // Draw edges
+    for (var e = 0; e < edges.length; e++) {
+      var a = projected[edges[e][0]];
+      var b = projected[edges[e][1]];
+      var avgZ = (a[2] + b[2]) / 2;
+      var alpha = Math.max(0.05, Math.min(0.5, 0.3 - avgZ * 0.15));
+      ctx.beginPath();
+      ctx.moveTo(a[0], a[1]);
+      ctx.lineTo(b[0], b[1]);
+      ctx.strokeStyle = 'rgba(16, 185, 129, ' + alpha + ')';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Draw vertices
+    for (var v = 0; v < projected.length; v++) {
+      var p = projected[v];
+      var alpha = Math.max(0.2, Math.min(1, 0.6 - p[2] * 0.3));
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(245, 158, 11, ' + alpha + ')';
+      ctx.fill();
+    }
+
+    angle += 0.005;
     rafId = requestAnimationFrame(draw);
   }
 
-  function init() {
+  if (!reducedMotion) {
     resize();
-    createParticles();
-    draw();
-  }
-
-  // Skip canvas animation entirely under reduced-motion preference
-  if (reducedMotion) {
-    canvas.style.display = 'none';
-  } else {
     window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', function (e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-    window.addEventListener('mouseout', function () {
-      mouse.x = null;
-      mouse.y = null;
-    });
-    init();
+    draw();
+  } else {
+    canvas.style.display = 'none';
   }
 
   // === Scroll Reveal ===
-  // Uses IntersectionObserver; elements get .visible when in viewport.
-  // Under reduced-motion the CSS forces all .reveal visible (no animation).
-
-  const revealEls = document.querySelectorAll('.reveal');
+  var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && !reducedMotion) {
-    const observer = new IntersectionObserver(function (entries) {
+    var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
@@ -128,59 +114,8 @@
         }
       });
     }, { threshold: 0.15 });
-
-    revealEls.forEach(function (el) {
-      observer.observe(el);
-    });
+    revealEls.forEach(function (el) { observer.observe(el); });
   } else {
-    revealEls.forEach(function (el) {
-      el.classList.add('visible');
-    });
-  }
-
-  // === Animated Counters ===
-  // Counts up from 0 to data-target when stat card enters viewport.
-  // Skipped under reduced-motion (shows final value immediately).
-
-  const statNums = document.querySelectorAll('.stat-num');
-
-  function animateCounter(el) {
-    const target = parseInt(el.dataset.target, 10) || 0;
-    if (target === 0) {
-      el.textContent = '0';
-      return;
-    }
-    if (reducedMotion) {
-      el.textContent = String(target);
-      return;
-    }
-    const duration = 1500;
-    const start = performance.now();
-    function step(now) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-      el.textContent = String(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = String(target);
-    }
-    requestAnimationFrame(step);
-  }
-
-  if ('IntersectionObserver' in window) {
-    const statObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animateCounter(entry.target);
-          statObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-
-    statNums.forEach(function (el) {
-      statObserver.observe(el);
-    });
-  } else {
-    statNums.forEach(animateCounter);
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
   }
 })();
