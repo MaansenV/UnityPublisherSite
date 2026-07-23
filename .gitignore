@@ -1,0 +1,21 @@
+# Local agent skills (installed via npx skills add)
+# These are local tooling, not part of the published website.
+.agents/
+.claude/
+.omp/
+skills-lock.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Node / build artifacts
+node_modules/
+dist/
+build/
+*.log
