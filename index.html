@@ -133,27 +133,43 @@
   </div>
 </section>
 
-<!-- Contact — channel panel closes the console motif -->
+<!-- Contact — channel panel with form -->
 <section id="contact" class="section">
   <div class="console-panel channel-panel" data-tilt>
     <div class="console-header">
       <span class="console-dot"></span>
       <span class="console-title">CONTACT.CHANNEL</span>
     </div>
-    <div class="console-rows">
+    <form class="contact-form" action="https://formsubmit.co/dinlinwin@gmail.com" method="POST">
+      <!-- FormSubmit config -->
+      <input type="hidden" name="_subject" value="New message from Publisher page">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" value="https://maansenv.github.io/Publisher/">
       <div class="console-row console-comment">
-        <span class="console-key">// inquiries about assets</span>
+        <span class="console-key">// compose a message</span>
       </div>
-      <a href="mailto:dinlinwin@gmail.com" class="console-row channel-cmd">
-        <span class="console-key">&gt;</span>
-        <span class="console-val channel-email">dinlinwin@gmail.com</span>
+      <div class="form-row">
+        <label class="form-label" for="form-name">FROM</label>
+        <input class="form-input" type="text" name="name" id="form-name" placeholder="Your name" required>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="form-email">REPLY-TO</label>
+        <input class="form-input" type="email" name="email" id="form-email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="form-subject">SUBJECT</label>
+        <input class="form-input" type="text" name="subject" id="form-subject" placeholder="Message subject" required>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="form-message">MESSAGE</label>
+        <textarea class="form-input form-textarea" name="message" id="form-message" placeholder="Your message" rows="4" required></textarea>
+      </div>
+      <button class="form-submit" type="submit">
+        <span class="console-key form-submit-prefix">&gt;</span>
+        <span>send</span>
         <span class="channel-caret"></span>
-      </a>
-      <div class="console-row">
-        <span class="console-key">STATUS</span>
-        <span class="console-val"><span class="status-pulse"></span>Open</span>
-      </div>
-    </div>
+      </button>
+    </form>
   </div>
 </section>
 

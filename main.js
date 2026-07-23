@@ -299,6 +299,21 @@ document.documentElement.classList.add('js');
   }
 
   // ================================================================
+  // FORM — copy subject input into _subject hidden field on submit
+  // ================================================================
+
+  var contactForm = document.querySelector('.contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function () {
+      var subjectInput = document.getElementById('form-subject');
+      var hiddenSubject = contactForm.querySelector('[name="_subject"]');
+      if (subjectInput && hiddenSubject) {
+        hiddenSubject.value = subjectInput.value || 'New message from Publisher page';
+      }
+    });
+  }
+
+  // ================================================================
   // INIT
   // ================================================================
 
