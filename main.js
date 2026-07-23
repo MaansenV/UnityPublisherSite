@@ -215,26 +215,26 @@ document.documentElement.classList.add('js');
   }
 
   // ================================================================
-  // 3D TILT — feature cards respond to mouse position.
+  // 3D TILT — cards respond to mouse position with smooth ease-back.
+  // Transforms the card element itself (not a child wrapper).
   // ================================================================
 
   if (finePointer && !reducedMotion) {
     var tiltCards = document.querySelectorAll('[data-tilt]');
     tiltCards.forEach(function (card) {
+      card.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
       card.addEventListener('mousemove', function (e) {
         var rect = card.getBoundingClientRect();
         var x = (e.clientX - rect.left) / rect.width - 0.5;
         var y = (e.clientY - rect.top) / rect.height - 0.5;
-        var inner = card.querySelector('.feature-inner');
-        if (inner) {
-          inner.style.transform = 'perspective(600px) rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg)';
-        }
+        // Kill transition during movement for 1:1 tracking
+        card.style.transition = 'none';
+        card.style.transform = 'perspective(800px) rotateY(' + (x * 6) + 'deg) rotateX(' + (-y * 6) + 'deg)';
       });
       card.addEventListener('mouseleave', function () {
-        var inner = card.querySelector('.feature-inner');
-        if (inner) {
-          inner.style.transform = 'perspective(600px) rotateY(0) rotateX(0)';
-        }
+        // Restore transition for smooth ease-back to neutral
+        card.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        card.style.transform = 'perspective(800px) rotateY(0) rotateX(0)';
       });
     });
   }
